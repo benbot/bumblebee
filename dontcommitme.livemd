@@ -1,0 +1,35 @@
+# Untitled notebook
+
+```elixir
+# Mix.install([
+#  {:bumblebee, path: "/Users/benbot/Documents/dev/bumblebee"},
+#  {:axon, "~> 0.5.1"}
+# ])
+```
+
+## Section
+
+```elixir
+{:ok, model} =
+  Bumblebee.load_model({:hf, "microsoft/markuplm-large"}, module: Bumblebee.Text.MarkupLM)
+
+# {:ok, gpt2}  = Bumblebee.load_model({:hf, "gpt2"})
+```
+
+```elixir
+{:ok, tokenizer} =
+  Bumblebee.load_tokenizer(
+    {:hf, "microsoft/markuplm-large"},
+    module: Bumblebee.Text.MarkupLMTokenizer
+  )
+
+tokens = Bumblebee.apply_tokenizer(tokenizer, "asdf")
+```
+
+```elixir
+outs = Axon.predict(model.model, model.params, tokens)
+```
+
+```elixir
+outs
+```
