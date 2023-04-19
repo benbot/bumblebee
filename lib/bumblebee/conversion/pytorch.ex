@@ -215,6 +215,8 @@ defmodule Bumblebee.Conversion.PyTorch do
         nil
 
       prefix_sets ->
+        require IEx
+        IEx.pry()
         prefix_sets
         |> Enum.reduce(&MapSet.intersection/2)
         |> Enum.to_list()

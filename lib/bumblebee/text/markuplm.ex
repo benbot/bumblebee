@@ -34,7 +34,7 @@ defmodule Bumblebee.Text.MarkupLM do
       """
     ],
     hidden_act: [
-      default: "gelu",
+      default: :gelu,
       doc: """
         the activation function to use in the model
       """
@@ -184,6 +184,7 @@ defmodule Bumblebee.Text.MarkupLM do
       Bumblebee.Utils.Model.inputs_to_map([
         Axon.input("input_ids", shape: shape),
         Axon.input("attention_mask", shape: attention_mask_shape, optional: true),
+        Axon.input("attention_head_mask", shape: attention_mask_shape, optional: true),
         Axon.input("token_type_ids", shape: shape, optional: true),
         Axon.input("position_ids", shape: shape, optional: true)
       ])
@@ -205,12 +206,17 @@ defmodule Bumblebee.Text.MarkupLM do
       encoder(
         embeddings,
         inputs["attention_mask"],
+        inputs["attention_head_mask"],
         spec,
         name: "encoder"
       )
 
     %{
+      hidden_state: encoder_outputs.hidden_state,
       hidden_states: encoder_outputs.hidden_states,
+      attentions: encoder_outputs.attentions,
+      cross_attentions: encoder_outputs.cross_attentions,
+      cache: encoder_outputs.cache
     }
   end
 
@@ -225,9 +231,23 @@ defmodule Bumblebee.Text.MarkupLM do
 
     Layers.Transformer.blocks(
       hidden_state,
-      [
-
-      ]
+      attention_mask: attention_mask,
+      attention_head_mask: attention_head_mask,
+      num_blocks: spec.num_hidden_layers,
+      num_attention_heads: spec.num_attention_heads,
+      hidden_size: spec.hidden_size,
+      kernel_initializer: kernel_initializer(spec),
+      dropout_rate: spec.hidden_dropout_prob,
+      attention_dropout_rate: spec.attention_probs_dropout_prob,
+      layer_norm: [
+        epsilon: spec.layer_norm_eps
+      ],
+      ffn: [
+        intermediate_size: spec.intermediate_size,
+        activation: spec.hidden_act,
+      ],
+      output_attentions: true,
+      output_hidden_states: true,
     )
   end
 
@@ -249,7 +269,7 @@ defmodule Bumblebee.Text.MarkupLM do
         input_ids,
         spec.vocab_size,
         spec.hidden_size,
-        kernel_initializer: kernel_initializer(spec),
+        kernel_initializer: kernel_initializer(spec)
       )
 
     position_embeddings =
@@ -258,7 +278,7 @@ defmodule Bumblebee.Text.MarkupLM do
         spec.max_position_embeddings,
         spec.hidden_size,
         kernel_initializer: kernel_initializer(spec),
-        name: "#{name}/position_embeddings"
+        name: "#{name}.position_embeddings"
       )
 
     token_type_embeddings =
@@ -267,7 +287,7 @@ defmodule Bumblebee.Text.MarkupLM do
         spec.type_vocab_size,
         spec.hidden_size,
         kernel_initializer: kernel_initializer(spec),
-        name: "#{name}/token_type_embeddings"
+        name: "#{name}.token_type_embeddings"
       )
 
     Axon.add([input_embeddings, position_embeddings, token_type_embeddings])
@@ -287,7 +307,7 @@ defmodule Bumblebee.Text.MarkupLM do
           num_hidden_layers: {"num_hidden_layers", number()},
           num_attention_heads: {"num_attention_heads", number()},
           intermediate_size: {"intermediate_size", number()},
-          hidden_act: {:hidden_act, number()},
+          hidden_act: {:hidden_act, atom()},
           hidden_dropout_prob: {"hidden_dropout_prob", number()},
           attention_probs_dropout_prob: {"attention_probs_dropout_prob", number()},
           max_position_embeddings: {"max_position_embeddings", number()},
@@ -308,7 +328,9 @@ defmodule Bumblebee.Text.MarkupLM do
 
   defimpl Bumblebee.HuggingFace.Transformers.Model do
     def params_mapping(_spec) do
-      %{}
+      %{
+
+      }
     end
   end
 end

@@ -1,5 +1,7 @@
 # Untitled notebook
 
+## Section
+
 ```elixir
 # Mix.install([
 #  {:bumblebee, path: "/Users/benbot/Documents/dev/bumblebee"},
@@ -10,10 +12,12 @@
 ## Section
 
 ```elixir
+{:ok, bert} = Bumblebee.load_model({:hf, "gpt2"})
+```
+
+```elixir
 {:ok, model} =
   Bumblebee.load_model({:hf, "microsoft/markuplm-large"}, module: Bumblebee.Text.MarkupLM)
-
-# {:ok, gpt2}  = Bumblebee.load_model({:hf, "gpt2"})
 ```
 
 ```elixir
@@ -31,5 +35,13 @@ outs = Axon.predict(model.model, model.params, tokens)
 ```
 
 ```elixir
-outs
+bert.params
+```
+
+```elixir
+source_names =
+  for {key, _} <- pytorch_state, uniq: true do
+    # Drop parameter name
+    key |> String.split(".") |> Enum.drop(-1) |> Enum.join(".")
+  end
 ```
