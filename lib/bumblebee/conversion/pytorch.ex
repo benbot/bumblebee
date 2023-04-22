@@ -48,6 +48,7 @@ defmodule Bumblebee.Conversion.PyTorch do
 
       {params, diff} = init_params(model, params_expr, pytorch_state, opts[:params_mapping])
 
+      dbg()
       params_complete? = diff.missing == [] and diff.mismatched == []
 
       params =
@@ -55,6 +56,7 @@ defmodule Bumblebee.Conversion.PyTorch do
           params
         else
           {init_fun, _} = Axon.build(model, compiler: Nx.Defn.Evaluator)
+          dbg()
           init_fun.(input_template, params)
         end
 
@@ -215,8 +217,6 @@ defmodule Bumblebee.Conversion.PyTorch do
         nil
 
       prefix_sets ->
-        require IEx
-        IEx.pry()
         prefix_sets
         |> Enum.reduce(&MapSet.intersection/2)
         |> Enum.to_list()

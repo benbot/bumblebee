@@ -12,22 +12,17 @@
 ## Section
 
 ```elixir
-{:ok, bert} = Bumblebee.load_model({:hf, "gpt2"})
-```
-
-```elixir
-{:ok, model} =
-  Bumblebee.load_model({:hf, "microsoft/markuplm-large"}, module: Bumblebee.Text.MarkupLM)
-```
-
-```elixir
 {:ok, tokenizer} =
-  Bumblebee.load_tokenizer(
+  Bumblebee.load_model(
     {:hf, "microsoft/markuplm-large"},
-    module: Bumblebee.Text.MarkupLMTokenizer
+    module: Bumblebee.Text.MarkupLM
   )
 
-tokens = Bumblebee.apply_tokenizer(tokenizer, "asdf")
+# tokens = Bumblebee.apply_tokenizer(tokenizer, "asdf")
+```
+
+```elixir
+{:ok, bert} = Bumblebee.load_model({:hf, "gpt2")}
 ```
 
 ```elixir
@@ -35,7 +30,7 @@ outs = Axon.predict(model.model, model.params, tokens)
 ```
 
 ```elixir
-bert.params
+tokenizer
 ```
 
 ```elixir

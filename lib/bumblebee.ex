@@ -487,7 +487,6 @@ defmodule Bumblebee do
           paths,
           [params_mapping: params_mapping] ++ Keyword.take(opts, [:backend, :log_params_diff])
         )
-
       {:ok, params}
     end
   end

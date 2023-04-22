@@ -1,121 +1,122 @@
 defmodule Bumblebee.Text.MarkupLM do
   alias Bumblebee.Shared
 
-  options = [
-    vocab_size: [
-      default: 30522,
-      doc: """
-        the vocabulary size of the token embedding. This corresponds to the number of distinct
-        tokens that can be represented in model input and output
-      """
-    ],
-    hidden_size: [
-      default: 768,
-      doc: """
-        the size of the hidden layer in the model
-      """
-    ],
-    num_hidden_layers: [
-      default: 12,
-      doc: """
-        the number of hidden layers in the model
-      """
-    ],
-    num_attention_heads: [
-      default: 12,
-      doc: """
-        the number of attention heads in the model
-      """
-    ],
-    intermediate_size: [
-      default: 3072,
-      doc: """
-        the size of the intermediate layer in the model
-      """
-    ],
-    hidden_act: [
-      default: :gelu,
-      doc: """
-        the activation function to use in the model
-      """
-    ],
-    hidden_dropout_prob: [
-      default: 0.1,
-      doc: """
-        the dropout probability for the hidden layers
-      """
-    ],
-    attention_probs_dropout_prob: [
-      default: 0.1,
-      doc: """
-        the dropout probability for the attention layers
-      """
-    ],
-    max_position_embeddings: [
-      default: 512,
-      doc: """
-        the maximum number of positions in the model
-      """
-    ],
-    type_vocab_size: [
-      default: 2,
-      doc: """
-        the number of types in the model
-      """
-    ],
-    initializer_range: [
-      default: 0.02,
-      doc: """
-        the standard deviation of the normal distribution used to initialize the weights
-      """
-    ],
-    layer_norm_eps: [
-      default: 1.0e-12,
-      doc: """
-        the epsilon value to use in the layer normalization layers
-      """
-    ],
-    max_tree_id_unit_embeddings: [
-      default: 1024,
-      doc: """
-        The maximum value that the xpath subscript unit embedding might ever use. Typically set this to something
-      """
-    ],
-    max_xpath_tag_unit_embeddings: [
-      default: 1024,
-      doc: """
-        The maximum value that the xpath subscript unit embedding might ever use. Typically set this to something
-      """
-    ],
-    max_xpath_subs_unit_embeddings: [
-      default: 1024,
-      doc: """
-        The maximum value that the xpath subscript unit embedding might ever use. Typically set this to something
-      """
-    ],
-    tag_pad_id: [
-      default: 216,
-      doc: """
-        The id of the tag pad token for xpath
-      """
-    ],
-    subs_pad_id: [
-      default: 216,
-      doc: """
-        The id of the subscript pad token for xpath
-      """
-    ],
-    max_depth: [
-      default: 50,
-      doc: """
-        The maximum depth of the xpath
-      """
-    ],
-  ] ++
-  Shared.common_options([
-    :num_labels,
-    :id_to_label,
-  ])
+  options =
+    [
+      vocab_size: [
+        default: 30522,
+        doc: """
+          the vocabulary size of the token embedding. This corresponds to the number of distinct
+          tokens that can be represented in model input and output
+        """
+      ],
+      hidden_size: [
+        default: 768,
+        doc: """
+          the size of the hidden layer in the model
+        """
+      ],
+      num_hidden_layers: [
+        default: 12,
+        doc: """
+          the number of hidden layers in the model
+        """
+      ],
+      num_attention_heads: [
+        default: 12,
+        doc: """
+          the number of attention heads in the model
+        """
+      ],
+      intermediate_size: [
+        default: 3072,
+        doc: """
+          the size of the intermediate layer in the model
+        """
+      ],
+      hidden_act: [
+        default: :gelu,
+        doc: """
+          the activation function to use in the model
+        """
+      ],
+      hidden_dropout_prob: [
+        default: 0.1,
+        doc: """
+          the dropout probability for the hidden layers
+        """
+      ],
+      attention_probs_dropout_prob: [
+        default: 0.1,
+        doc: """
+          the dropout probability for the attention layers
+        """
+      ],
+      max_position_embeddings: [
+        default: 512,
+        doc: """
+          the maximum number of positions in the model
+        """
+      ],
+      type_vocab_size: [
+        default: 2,
+        doc: """
+          the number of types in the model
+        """
+      ],
+      initializer_range: [
+        default: 0.02,
+        doc: """
+          the standard deviation of the normal distribution used to initialize the weights
+        """
+      ],
+      layer_norm_eps: [
+        default: 1.0e-12,
+        doc: """
+          the epsilon value to use in the layer normalization layers
+        """
+      ],
+      max_tree_id_unit_embeddings: [
+        default: 1024,
+        doc: """
+          The maximum value that the xpath subscript unit embedding might ever use. Typically set this to something
+        """
+      ],
+      max_xpath_tag_unit_embeddings: [
+        default: 1024,
+        doc: """
+          The maximum value that the xpath subscript unit embedding might ever use. Typically set this to something
+        """
+      ],
+      max_xpath_subs_unit_embeddings: [
+        default: 1024,
+        doc: """
+          The maximum value that the xpath subscript unit embedding might ever use. Typically set this to something
+        """
+      ],
+      tag_pad_id: [
+        default: 216,
+        doc: """
+          The id of the tag pad token for xpath
+        """
+      ],
+      subs_pad_id: [
+        default: 216,
+        doc: """
+          The id of the subscript pad token for xpath
+        """
+      ],
+      max_depth: [
+        default: 50,
+        doc: """
+          The maximum depth of the xpath
+        """
+      ]
+    ] ++
+      Shared.common_options([
+        :num_labels,
+        :id_to_label
+      ])
 
   @moduledoc """
   MarkupML Model.
@@ -171,10 +172,18 @@ defmodule Bumblebee.Text.MarkupLM do
     %{"input_ids" => Nx.template({1, 1}, :u32)}
   end
 
-  defp inputs(spec, opts \\ []) do
+  @impl true
+  def init_cache(_spec, _batch_size, _max_length, _inputs) do
+  end
+
+  @impl true
+  def traverse_cache(_spec, _cache, _function) do
+  end
+
+  defp inputs(spec) do
     shape = {nil, nil}
 
-    hidden_shape = Tuple.append(shape, spec.hidden_size)
+    # hidden_shape = Tuple.append(shape, spec.hidden_size)
     attention_mask_shape = {
       spec.num_hidden_layers,
       spec.num_attention_heads
@@ -192,7 +201,7 @@ defmodule Bumblebee.Text.MarkupLM do
     inputs
   end
 
-  defp core(inputs, spec, opts \\ []) do
+  defp core(inputs, spec) do
     embeddings =
       embedder(
         inputs["input_ids"],
@@ -221,12 +230,12 @@ defmodule Bumblebee.Text.MarkupLM do
   end
 
   defp encoder(
-    hidden_state,
-    attention_mask,
-    attention_head_mask,
-    spec,
-    opts \\ []
-  ) do
+         hidden_state,
+         attention_mask,
+         attention_head_mask,
+         spec,
+         opts
+       ) do
     name = opts[:name]
 
     Layers.Transformer.blocks(
@@ -244,14 +253,15 @@ defmodule Bumblebee.Text.MarkupLM do
       ],
       ffn: [
         intermediate_size: spec.intermediate_size,
-        activation: spec.hidden_act,
+        activation: spec.hidden_act
       ],
       output_attentions: true,
       output_hidden_states: true,
+      name: "#{name}.blocks"
     )
   end
 
-  defp embedder(input_ids, position_ids, token_type_ids, spec, opts \\ []) do
+  defp embedder(input_ids, position_ids, token_type_ids, spec, opts) do
     name = opts[:name]
 
     position_ids =
@@ -269,7 +279,8 @@ defmodule Bumblebee.Text.MarkupLM do
         input_ids,
         spec.vocab_size,
         spec.hidden_size,
-        kernel_initializer: kernel_initializer(spec)
+        kernel_initializer: kernel_initializer(spec),
+        name: "#{name}.word_embeddings"
       )
 
     position_embeddings =
@@ -291,9 +302,10 @@ defmodule Bumblebee.Text.MarkupLM do
       )
 
     Axon.add([input_embeddings, position_embeddings, token_type_embeddings])
-    |> Axon.layer_norm(epsilon: spec.layer_norm_eps, name: "#{name}/LayerNorm")
-    |> Axon.dropout(rate: spec.hidden_dropout_prob, name: "#{name}/Dropout")
+    |> Axon.layer_norm(epsilon: spec.layer_norm_eps, name: "#{name}.norm")
+    |> Axon.dropout(rate: spec.hidden_dropout_prob, name: "#{name}.dropout")
   end
+
   defp kernel_initializer(spec), do: Axon.Initializers.normal(scale: spec.initializer_range)
 
   defimpl Bumblebee.HuggingFace.Transformers.Config do
@@ -320,16 +332,32 @@ defmodule Bumblebee.Text.MarkupLM do
           tag_pad_id: {"tag_pad_id", number()},
           subs_pad_id: {"subs_pad_id", number()},
           max_depth: {"max_depth", number()}
-        )
+        ) ++ Shared.common_options_from_transformers(data, spec)
 
-        @for.config(spec, opts)
+      @for.config(spec, opts)
     end
   end
 
   defimpl Bumblebee.HuggingFace.Transformers.Model do
     def params_mapping(_spec) do
       %{
-
+        "embedder.position_embeddings" => "markuplm.embeddings.position_embeddings",
+        "embedder.token_type_embeddings" => "markuplm.embeddings.token_type_embeddings",
+        "embedder.word_embeddings" => "markuplm.embeddings.word_embeddings",
+        "embedder.norm" => "markuplm.embeddings.LayerNorm",
+        "encoder.blocks.{n}.self_attention.query" =>
+          "markuplm.encoder.layer.{n}.attention.self.query",
+        "encoder.blocks.{n}.self_attention.key" =>
+          "markuplm.encoder.layer.{n}.attention.self.key",
+        "encoder.blocks.{n}.self_attention.value" =>
+          "markuplm.encoder.layer.{n}.attention.self.value",
+        "encoder.blocks.{n}.self_attention.output" =>
+          "markuplm.encoder.layer.{n}.attention.output.dense",
+        "encoder.blocks.{n}.self_attention_norm" =>
+          "markuplm.encoder.layer.{n}.attention.output.LayerNorm",
+        "encoder.blocks.{n}.ffn.intermediate" => "markuplm.encoder.layer.{n}.intermediate.dense",
+        "encoder.blocks.{n}.ffn.output" => "markuplm.encoder.layer.{n}.output.dense",
+        "encoder.blocks.{n}.output_norm" => "markuplm.encoder.layer.{n}.output.LayerNorm"
       }
     end
   end
